@@ -1,0 +1,52 @@
+/* Estilos personalizados */
+
+/* Estilo para o título */
+h1 {
+    color: #333; /* Cor do texto */
+    font-size: 36px; /* Tamanho da fonte */
+    margin-bottom: 20px; /* Espaçamento inferior */
+}
+
+/* Estilo para o subtítulo */
+h2 {
+    color: #555; /* Cor do texto */
+    font-size: 24px; /* Tamanho da fonte */
+    margin-bottom: 15px; /* Espaçamento inferior */
+}
+
+/* Estilo para a barra de navegação */
+.navbar {
+    background-color: #343a40 !important; /* Cor de fundo */
+}
+
+.navbar-brand {
+    font-size: 24px; /* Tamanho da fonte do logo */
+}
+
+.navbar-nav .nav-link {
+    color: #fff; /* Cor do texto dos links */
+    font-size: 18px; /* Tamanho da fonte dos links */
+    margin-left: 15px; /* Espaçamento à esquerda entre os links */
+}
+
+/* Estilo para o formulário */
+#form {
+    margin-top: 30px; /* Espaçamento superior */
+}
+
+.form-group {
+    margin-bottom: 20px; /* Espaçamento inferior entre grupos de formulários */
+}
+
+textarea {
+    resize: none; /* Impede o redimensionamento do textarea */
+}
+
+.btn_enviar {
+    opacity: 1; /* Opacidade inicial */
+    font-size: 18px; /* Tamanho da fonte do botão */
+}
+.btn_enviar.disabled {
+    opacity: 0.5; /* Opacidade quando o botão está desativado */
+    font-size: 18px; /* Tamanho da fonte do botão */
+}
