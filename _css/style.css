@@ -2,14 +2,14 @@
 
 /* Estilo para o título */
 h1 {
-    color: #333; /* Cor do texto */
+    color: #000; /* Cor do texto */
     font-size: 36px; /* Tamanho da fonte */
     margin-bottom: 20px; /* Espaçamento inferior */
 }
 
 /* Estilo para o subtítulo */
 h2 {
-    color: #555; /* Cor do texto */
+    color: #000; /* Cor do texto */
     font-size: 24px; /* Tamanho da fonte */
     margin-bottom: 15px; /* Espaçamento inferior */
 }

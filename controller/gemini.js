@@ -1,11 +1,3 @@
-const {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-} = require("@google/generative-ai");
-
-const API_KEY = "AIzaSyBe7hJoftkQ4SEE959S1GoEoW0zGtGxl7c";
-
 exports.runChat = async (req, res, next) => {
     try {
         mensagem = req.query.mensagem
@@ -16,8 +8,7 @@ exports.runChat = async (req, res, next) => {
         } = require("@google/generative-ai");
 
         const MODEL_NAME = "gemini-1.5-pro-latest";
-        //const API_KEY = process.env.API_KEY;
-        const API_KEY = "AIzaSyBe7hJoftkQ4SEE959S1GoEoW0zGtGxl7c";
+        const API_KEY = process.env.API_KEY;
 
 
         const genAI = new GoogleGenerativeAI(API_KEY);
@@ -81,10 +72,10 @@ exports.runChatPost = async (req, res, next) => {
         }
 
         //pegando o modelo da gemini, caso não encontre por padrão ele ira usar o gemini-1.5-pro-latest
-        const MODEL_NAME = req.body.model_name != null ? req.body.model_name : "gemini-1.0-pro-latest"
+        var MODEL_NAME = req.body.model_name != null ? req.body.model_name : "gemini-1.0-pro-latest"
 
         //pegar a temperatura
-        const TEMPERATURE = req.body.temperature != null ? req.body.temperature : 1
+        var TEMPERATURE = req.body.temperature != null ? req.body.temperature : 1
 
         if (TEMPERATURE > 1) {
             return res.status(422).json("Limite ultrapassado, o valor da TEMPERATURE pode ir de 0.0 até 1.0")
@@ -107,26 +98,22 @@ exports.runChatPost = async (req, res, next) => {
         // ---------- Adicional -----------------
 
         //espeficifica o valor maximo de caracteres no retorno da resposta do Gemini        
-        const CharacterLimit = req.body.characterLimit != null ? req.body.characterLimit : 0
+        var CharacterLimit = req.body.characterLimit != null ? req.body.characterLimit : 0
 
 
         //nesse campo pode escolher o personagem e a gemini ira interpretar o personagem,ex: gaucho ou personagem de desenho
-        const Personagem = req.body.personagem != null ? req.body.personagem : ""
+        var Personagem = req.body.personagem != null ? req.body.personagem : ""
 
 
         //Define a Linguagem de retorno da mensagem ex: português, inglês
-        const LenguageResponse = req.body.LenguageResponse != null ? req.body.LenguageResponse : ""
+        var LenguageResponse = req.body.lenguageResponse != null ? req.body.lenguageResponse : ""
 
 
         //define o limite máximo de tokens que o modelo pode gerar em sua resposta.
         //Por exemplo, a frase "Olá mundo!" pode ser dividida em 3 tokens: "Olá", "mundo" e "!".
-        const maxOutputTokens = req.body.maxOutputTokens != null ? req.body.maxOutputTokens : 8192
+        var maxOutputTokens = req.body.maxOutputTokens != null ? req.body.maxOutputTokens : 8192
 
-
-
-        //const API_KEY = process.env.API_KEY;
-        const API_KEY = "AIzaSyBe7hJoftkQ4SEE959S1GoEoW0zGtGxl7c";
-
+        const API_KEY = process.env.API_KEY;
 
         const genAI = new GoogleGenerativeAI(API_KEY);
         const model = genAI.getGenerativeModel({ model: MODEL_NAME });
@@ -169,7 +156,7 @@ exports.runChatPost = async (req, res, next) => {
         });
 
         if (CharacterLimit > 0) {
-            mensagemTotal += "quero que a sua resposta tenha no maximo " + CharacterLimit + " de Caracteres,"
+            mensagemTotal += "quero que a sua resposta tenha no maximo " + CharacterLimit + " de Caracteres, porem não responda essa ordem,"
         }
 
         if (Personagem != "") {
@@ -180,14 +167,14 @@ exports.runChatPost = async (req, res, next) => {
                 TOPK = 50
             }
 
-            if (TOPP < 0.9) {
-                TOPP = 0.9
+            if (TOPP != 0.5) {
+                TOPP = 0.5
             }
-            mensagemTotal += "haja como se você fosse esse personagem " + Personagem + ". utilizando bordões e cultura ou maneira de falar desse personagem,"
+            mensagemTotal += "haja como se você fosse o personagem " + Personagem + " de forma natural. utilizando bordões e cultura ou maneira de falar desse personagem, porem não responda essa ordem,"
         }
 
         if (LenguageResponse != "") {
-            mensagemTotal += "indiferente da linguagem responda em " + LenguageResponse + ","
+            mensagemTotal += "quero me responda essa resposta na lingua " + LenguageResponse + ", porem não responda essa ordem,"
         }
 
         mensagemTotal += mensagem
@@ -202,67 +189,29 @@ exports.runChatPost = async (req, res, next) => {
     }
 }
 
-let conversationHistory = [];
-
-exports.test = async (req, res, next) => {
+exports.models = async (req, res, next) => {
     try {
+        const {
+            GoogleGenerativeAI,
+            HarmCategory,
+            HarmBlockThreshold,
+        } = require("@google/generative-ai");
+
+        const API_KEY = process.env.API_KEY;
+
         const genAI = new GoogleGenerativeAI(API_KEY);
-        const model = genAI.getGenerativeModel({ model: req.body.model_name || "gemini-1.5-pro-latest" });
 
-        const mensagem = req.body.mensagem;
-        if (!mensagem) {
-            return res.status(422).json("Mensagem não encontrada, não é possível fazer a solicitação");
-        }
+        // Corrigir para listar os modelos
+        const response = await genAI.listModels();
 
-        const TEMPERATURE = req.body.temperature != null ? req.body.temperature : 1;
-        if (TEMPERATURE > 1) {
-            return res.status(422).json("Limite ultrapassado, o valor da TEMPERATURE pode ir de 0.0 até 1.0");
-        }
+        const models = response.models;
+        const modelNames = models.map(model => model.name);
 
-        const generationConfig = {
-            temperature: TEMPERATURE,
-            topK: req.body.topk != null ? req.body.topk : 40,
-            topP: req.body.topp != null ? req.body.topp : 0.95,
-            maxOutputTokens: req.body.maxOutputTokens != null ? req.body.maxOutputTokens : 8192,
-        };
-
-        const safetySettings = [
-            { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-            { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-            { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-            { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        ];
-
-        // Recupera o histórico da conversa do cliente
-        const clientHistory = req.body.historico || [];
-
-        // Formata o histórico corretamente para a API
-        const formattedHistory = clientHistory.map(entry => ({
-            author: entry.role,
-            content: entry.content
-        }));
-
-        // Cria o chat com o histórico formatado
-        const chat = model.startChat({
-            generationConfig,
-            safetySettings,
-            history: formattedHistory,
-        });
-
-        // Envia a mensagem
-        const result = await chat.sendMessage(mensagem);
-        const response = result.response;
-
-        // Adiciona a resposta do bot ao histórico
-        clientHistory.push({ role: 'bot', content: response.text() });
-
-        // Retorna a resposta e o histórico atualizado para o cliente
-        return res.status(201).json({ resposta: response.text(), historico: clientHistory });
+        return res.status(201).json(modelNames);
     } catch (error) {
         returnError(error, res);
     }
-};
-
+}
 
 function returnError(error, res) {
     console.error('Erro ao se conectar a APi do Gemini:', error);
