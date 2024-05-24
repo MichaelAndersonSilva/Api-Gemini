@@ -1,5 +1,5 @@
 <h1 align="center"> 
-	🔐API Rest Chat Gemini.
+	🔐API Rest do Chat Gemini usando Node.js.
 </h1>
 
 ## 💻 Como Instalar
